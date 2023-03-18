@@ -4,41 +4,15 @@ pragma solidity >=0.4.22 <0.9.0;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract bidRegistry is ReentrancyGuard {
+import "./gameStorage.sol";
+
+contract gameRegistry is gameStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
-
-    uint256 public gameId;
-
-    enum gameState {
-        SCEDULED,
-        STARTED,
-        RUNNING,
-        FINISHED
-    }
-
-    struct gameDetail {
-        address ERC20contract;
-        address gameOwner;
-        uint256 gameCreationTime;
-        uint256 price;
-        bool fixPrice;
-        bool addBidders;
-        uint256 bidStartTime;
-        uint256 bidEndTime;
-        gameState state;
-    }
 
     // 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4
     // 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2
     // 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db
     // 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB
-
-    // gameId => gameDetail
-    mapping(uint256 => gameDetail) public gamesDetail;
-    // gameId => Bidders Address
-    mapping(uint256 => address[]) public Bidders;
-    // tokenId => (Bidder Address => Bidder Address index)
-    mapping(uint256 => mapping(address => uint256)) public bidderAddressIndex;
 
     event gameListedForFixPrice(
         address ERC20contract,
