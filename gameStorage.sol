@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
+import "./Libraries/LibGame.sol";
+
 abstract contract gameStorage {
     uint256 public gameId;
 
@@ -27,6 +29,8 @@ abstract contract gameStorage {
     mapping(uint256 => gameDetail) public gamesDetail;
     // gameId => Bidders Address
     mapping(uint256 => address[]) public Bidders;
-    // tokenId => (Bidder Address => Bidder Address index)
+    // gameId => (Bidder Address => Bidder Address index)
     mapping(uint256 => mapping(address => uint256)) public bidderAddressIndex;
+    // gameId => LibGame.Competitor[]
+    mapping(uint256 => LibGame.Competitor[]) public Competitors;
 }

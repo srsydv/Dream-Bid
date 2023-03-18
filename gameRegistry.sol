@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./gameStorage.sol";
+import "./Libraries/LibGame.sol";
 
 contract gameRegistry is gameStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
@@ -24,6 +25,12 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
 
     event BidderAdded(uint256 gameId, address BidderAddress);
     event BidderRemoved(uint256 gameId, address BidderAddress);
+    event CompetitorsSet(
+        uint256 indexed gameId,
+        LibGame.Competitor[] indexed Competitors
+    );
+
+    // error sameCompetitor(string, address);
 
     modifier onlyGameOwner(uint256 _gameId) {
         gameDetail storage game = gamesDetail[_gameId];
@@ -36,12 +43,16 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         uint256 _price,
         uint256 _bidStartTime,
         uint256 _bidEndTime,
-        bool _addBidders
+        bool _addBidders,
+        uint8 _totleCompetitors,
+        LibGame.Competitor[] memory competitors
     ) external nonReentrant {
         require(
             _ERC20contract != address(0),
             "you can't do this with zero address"
         );
+        require(_totleCompetitors <= 10, "Competitors > 10");
+        require(_totleCompetitors == competitors.length, "Total Competitors");
         uint256 gameId_ = ++gameId;
         gameDetail memory gameData = gameDetail(
             _ERC20contract,
@@ -56,6 +67,8 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         );
         gamesDetail[gameId_] = gameData;
 
+        _setCompetitorsByGameId(gameId_, competitors);
+
         emit gameListedForFixPrice(
             _ERC20contract,
             gameId_,
@@ -63,6 +76,34 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
             block.timestamp + _bidStartTime,
             block.timestamp + _bidEndTime
         );
+    }
+
+    // [["Hi"],["Shrish"],["Sonal"]]
+    function _setCompetitorsByGameId(
+        uint256 _gameId,
+        LibGame.Competitor[] memory competitors
+    ) private {
+        delete Competitors[_gameId];
+        for (uint8 i = 0; i < competitors.length; i++) {
+            for (uint8 j = 0; j < i; j++) {
+                if (
+                    keccak256(abi.encode(competitors[i])) ==
+                    keccak256(abi.encode(competitors[j]))
+                ) {
+                    revert("Same competitor name Not Allowed");
+                }
+            }
+            Competitors[_gameId].push(competitors[i]);
+        }
+        emit CompetitorsSet(_gameId, competitors);
+    }
+
+    function getCompetitors(uint256 _gameId)
+        external
+        view
+        returns (LibGame.Competitor[] memory)
+    {
+        return Competitors[_gameId];
     }
 
     function addBidders(uint256 _gameId, address _bidderAddress)
