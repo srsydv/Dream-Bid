@@ -18,7 +18,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     event gameListedForFixPrice(
         address ERC20contract,
         uint256 gameId,
-        uint256 price,
+        uint256 minPrice,
         uint256 bidStartTime,
         uint256 bidEndTime
     );
@@ -40,7 +40,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
 
     function listGame(
         address _ERC20contract,
-        uint256 _price,
+        uint256 _minPrice,
         uint256 _bidStartTime,
         uint256 _bidEndTime,
         bool _addBidders,
@@ -58,7 +58,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
             _ERC20contract,
             msg.sender,
             block.timestamp,
-            _price,
+            _minPrice,
             true,
             _addBidders,
             block.timestamp + _bidStartTime,
@@ -72,10 +72,18 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         emit gameListedForFixPrice(
             _ERC20contract,
             gameId_,
-            _price,
+            _minPrice,
             block.timestamp + _bidStartTime,
             block.timestamp + _bidEndTime
         );
+    }
+
+    function getGamedetail(uint256 _gameId)
+        external
+        view
+        returns (gameDetail memory)
+    {
+        return gamesDetail[_gameId];
     }
 
     // [["Hi"],["Shrish"],["Sonal"]]
@@ -104,6 +112,14 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         returns (LibGame.Competitor[] memory)
     {
         return Competitors[_gameId];
+    }
+
+    function getCompetitorsById(uint256 _gameId, uint8 _competitorIndex)
+        external
+        view
+        returns (LibGame.Competitor memory)
+    {
+        return Competitors[_gameId][_competitorIndex];
     }
 
     function addBidders(uint256 _gameId, address _bidderAddress)
@@ -147,5 +163,16 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         }
         delete bidderAddressIndex[_gameId][_bidderAddress];
         Bidders[_gameId].pop();
+    }
+
+    function bidderVerification(uint256 _gameId, address _bidderAddress)
+        external
+        view
+        returns (bool isVerified)
+    {
+        uint256 Index = bidderAddressIndex[_gameId][_bidderAddress];
+        if (Bidders[_gameId][Index] == _bidderAddress) {
+            isVerified = true;
+        }
     }
 }
