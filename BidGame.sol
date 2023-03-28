@@ -56,6 +56,8 @@ contract BidGame is gameStorage, ReentrancyGuard {
         BidOrder memory bid = BidOrder(_ERC20Address, msg.sender, _amount);
         Bids[_gameId][_competitorIndex].push(bid);
 
+        totalBidAmount[_gameId][_competitorIndex] += _amount;
+
         // Send payment to the Pool
         require(
             IERC20(_ERC20Address).transferFrom(

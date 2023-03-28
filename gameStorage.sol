@@ -33,4 +33,8 @@ abstract contract gameStorage {
     mapping(uint256 => mapping(address => uint256)) public bidderAddressIndex;
     // gameId => LibGame.Competitor[]
     mapping(uint256 => LibGame.Competitor[]) public Competitors;
+    // gameId => CompetitorIndex
+    mapping(uint256 => uint8[]) public Winners;
+    // gameId => CompetitorIndex => totalBidAmount
+    mapping(uint256 => mapping(uint8 => uint256)) public totalBidAmount;
 }

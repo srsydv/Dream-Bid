@@ -27,8 +27,9 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     event BidderRemoved(uint256 gameId, address BidderAddress);
     event CompetitorsSet(
         uint256 indexed gameId,
-        LibGame.Competitor[] indexed Competitors
+        LibGame.Competitor[] Competitors
     );
+    event DecidedWinners(uint256 gameId, uint8[] Winners);
 
     // error sameCompetitor(string, address);
 
@@ -174,5 +175,20 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         if (Bidders[_gameId][Index] == _bidderAddress) {
             isVerified = true;
         }
+    }
+
+    function decideWinner(uint256 _gameId, uint8[] memory winners) external {
+        for (uint8 i = 0; i < winners.length; i++) {
+            Winners[_gameId].push(winners[i]);
+        }
+        emit DecidedWinners(_gameId, winners);
+    }
+
+    function getWinners(uint256 _gameId)
+        external
+        view
+        returns (uint8[] memory)
+    {
+        return Winners[_gameId];
     }
 }
