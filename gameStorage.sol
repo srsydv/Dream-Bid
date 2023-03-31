@@ -14,7 +14,7 @@ abstract contract gameStorage {
     }
 
     struct gameDetail {
-        address ERC20contract;
+        address currency;
         address gameOwner;
         uint256 gameCreationTime;
         uint256 price;
@@ -24,7 +24,20 @@ abstract contract gameStorage {
         uint256 bidEndTime;
         gameState state;
     }
-
+    struct BidOrder {
+        address currency;
+        address userAddress;
+        uint256 BidAmount;
+        bool withdrawn;
+    }
+    // gameId => competitorIndex => BidOrder[]
+    mapping(uint256 => mapping(uint8 => BidOrder[])) public Bids;
+    /*
+        BidIndex will always be plus one to actual Bid Index
+        because if user will again bid then his Bids[_gameId][_competitorIndex][bidIndex - 1].BidAmount will only change
+    */
+    // userAddress => gameId => BidIndex
+    mapping(address => mapping(uint256 => uint256)) public userBidIndex;
     // gameId => gameDetail
     mapping(uint256 => gameDetail) public gamesDetail;
     // gameId => Bidders Address
@@ -37,4 +50,6 @@ abstract contract gameStorage {
     mapping(uint256 => uint8[]) public Winners;
     // gameId => CompetitorIndex => totalBidAmount
     mapping(uint256 => mapping(uint8 => uint256)) public totalBidAmount;
+    // wolletAddress => Currency => Amount
+    mapping(address => mapping(address => uint256)) private userWollet;
 }

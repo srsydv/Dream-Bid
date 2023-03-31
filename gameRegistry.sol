@@ -16,7 +16,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     // 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB
 
     event gameListedForFixPrice(
-        address ERC20contract,
+        address Currency,
         uint256 gameId,
         uint256 minPrice,
         uint256 bidStartTime,
@@ -40,7 +40,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     }
 
     function listGame(
-        address _ERC20contract,
+        address _currency,
         uint256 _minPrice,
         uint256 _bidStartTime,
         uint256 _bidEndTime,
@@ -48,15 +48,11 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         uint8 _totleCompetitors,
         LibGame.Competitor[] memory competitors
     ) external nonReentrant {
-        require(
-            _ERC20contract != address(0),
-            "you can't do this with zero address"
-        );
         require(_totleCompetitors <= 10, "Competitors > 10");
         require(_totleCompetitors == competitors.length, "Total Competitors");
         uint256 gameId_ = ++gameId;
         gameDetail memory gameData = gameDetail(
-            _ERC20contract,
+            _currency,
             msg.sender,
             block.timestamp,
             _minPrice,
@@ -71,7 +67,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         _setCompetitorsByGameId(gameId_, competitors);
 
         emit gameListedForFixPrice(
-            _ERC20contract,
+            _currency,
             gameId_,
             _minPrice,
             block.timestamp + _bidStartTime,

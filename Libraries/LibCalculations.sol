@@ -46,7 +46,6 @@ contract LibCalculations {
     ) public pure returns (uint256) {
         require(_userAmount > 0, "Your amount is 0");
         uint256 percentage = (_userAmount * percentFactor(2)) / _winningCompetitorsAmount;
-        // return percent(_losingCompetitorsAmount, uint16(percentage));
-        return percentage;
+        return percent(_losingCompetitorsAmount, uint16(percentage));
     }
 }
