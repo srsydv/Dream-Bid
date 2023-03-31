@@ -24,7 +24,7 @@ contract BidGame is gameStorage, ReentrancyGuard {
     event BidCreated(
         uint256 GameId,
         uint8 CompetitorIndex,
-        address ERC20Address,
+        address Currency,
         uint256 Amount
     );
 
@@ -90,11 +90,38 @@ contract BidGame is gameStorage, ReentrancyGuard {
         emit BidCreated(_gameId, _competitorIndex, detail.currency, _amount);
     }
 
-    function withdraw(uint256 _gameId, bool toWollet) external nonReentrant {
+    function losingCompetitorsAmount(uint256 _gameId)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 amount;
+        gameRegistry(gameRegistryAddress).getWinners(_gameId);
+        for (uint8 i = 0; i < CompetitorsLimit; i++) {
+            amount += totalBidAmount[_gameId][i];
+        }
+        return amount;
+    }
+
+    function withdraw(
+        uint256 _gameId,
+        uint8 _competitorIndex,
+        bool toWollet
+    ) external nonReentrant {
         gameDetail memory detail = gameRegistry(gameRegistryAddress)
             .getGamedetail(_gameId);
-        require(block.timestamp > detail.bidEndTime, "Game not Started Yet");
-        // require()
+        require(block.timestamp > detail.bidEndTime, "Game not Finished Yet");
+        uint256 index = userBidIndex[msg.sender][_gameId];
+        require(index > 0, "You have not Bid in this game");
+        require(
+            !Bids[_gameId][_competitorIndex][index - 1].withdrawn,
+            "You have already withdrawn"
+        );
+        uint256 _losingCompetitorsAmount = losingCompetitorsAmount(_gameId);
+        // uint256 payout = LibCalculations.
+        if (toWollet) {
+            // userWollet[msg.sender][detail.currency] += _amount;
+        }
     }
 
     function getGameBidAmount(uint256 _gameId, uint8 _competitorIndex)

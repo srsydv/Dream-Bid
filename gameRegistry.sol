@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./gameStorage.sol";
+import "./dreamBidFee.sol";
 import "./Libraries/LibGame.sol";
 
 contract gameRegistry is gameStorage, ReentrancyGuard {
@@ -14,6 +15,12 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     // 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2
     // 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db
     // 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB
+
+    address public dreamBidFeeAddress;
+
+    constructor(address _dreamBidFeeAddress) {
+        dreamBidFeeAddress = _dreamBidFeeAddress;
+    }
 
     event gameListedForFixPrice(
         address Currency,
@@ -48,7 +55,10 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         uint8 _totleCompetitors,
         LibGame.Competitor[] memory competitors
     ) external nonReentrant {
-        require(_totleCompetitors <= 10, "Competitors > 10");
+        require(
+            _totleCompetitors <= CompetitorsLimit,
+            "Competitors > CompetitorsLimit"
+        );
         require(_totleCompetitors == competitors.length, "Total Competitors");
         uint256 gameId_ = ++gameId;
         gameDetail memory gameData = gameDetail(
@@ -73,6 +83,15 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
             block.timestamp + _bidStartTime,
             block.timestamp + _bidEndTime
         );
+    }
+
+    function setCompetitorsLimit(uint8 _competitorsLimit) public nonReentrant {
+        require(
+            msg.sender ==
+                dreamBidFee(dreamBidFeeAddress).getAconomyOwnerAddress(),
+            "You are not the Protocol Owner"
+        );
+        CompetitorsLimit = _competitorsLimit;
     }
 
     function getGamedetail(uint256 _gameId)
@@ -174,6 +193,11 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     }
 
     function decideWinner(uint256 _gameId, uint8[] memory winners) external {
+        require(
+            msg.sender ==
+                dreamBidFee(dreamBidFeeAddress).getAconomyOwnerAddress(),
+            "You are not the Protocol Owner"
+        );
         for (uint8 i = 0; i < winners.length; i++) {
             Winners[_gameId].push(winners[i]);
         }

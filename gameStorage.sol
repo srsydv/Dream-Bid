@@ -5,6 +5,7 @@ import "./Libraries/LibGame.sol";
 
 abstract contract gameStorage {
     uint256 public gameId;
+    uint8 public CompetitorsLimit;
 
     enum gameState {
         SCEDULED,
