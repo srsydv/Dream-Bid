@@ -96,9 +96,13 @@ contract BidGame is gameStorage, ReentrancyGuard {
         returns (uint256)
     {
         uint256 amount;
-        gameRegistry(gameRegistryAddress).getWinners(_gameId);
+        // gameRegistry(gameRegistryAddress).getWinners(_gameId);
         for (uint8 i = 0; i < CompetitorsLimit; i++) {
-            amount += totalBidAmount[_gameId][i];
+            for (uint8 j = 0; j < Winners[_gameId].length; j++) {
+                if (i != Winners[_gameId][j]) {
+                    amount += totalBidAmount[_gameId][i];
+                }
+            }
         }
         return amount;
     }
