@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
-// library LibCalculations {
-contract LibCalculations {
+library LibCalculations {
+// contract LibCalculations {
     function percentFactor(uint256 decimals) internal pure returns (uint256) {
         return 100 * (10**decimals);
     }

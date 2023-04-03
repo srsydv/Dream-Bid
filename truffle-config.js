@@ -44,7 +44,8 @@
 // require('dotenv').config();
 // const { MNEMONIC, PROJECT_ID } = process.env;
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const pk = process.env.PK
 
 module.exports = {
   /**
@@ -64,11 +65,32 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    // development: {
-    //  host: "127.0.0.1",     // Localhost (default: none)
-    //  port: 8545,            // Standard Ethereum port (default: none)
-    //  network_id: "*",       // Any network (default: none)
-    // },
+    development: {
+     host: "127.0.0.1",     // Localhost (default: none)
+     port: 8545,            // Standard Ethereum port (default: none)
+     network_id: "*",       // Any network (default: none)
+    },
+    goerli: {
+      provider: function () {
+        return new HDWalletProvider(
+          'c2a2e257c108692e2b879dde8b9ad2b13dcbef9c7229c646f9f8ee32f1b22ed3',
+          `https://goerli.infura.io/v3/3c7b140952bb485d96cd06904ae06727`
+        );
+      },
+      network_id: 5,
+      gas: 20000000,
+    },
+    bscTestnet: {
+      provider: () =>
+        new HDWalletProvider(
+          pk,
+          `https://data-seed-prebsc-1-s1.binance.org:8545`
+        ),
+      network_id: 97,
+      gasPrice: 40000000000,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+    },
     //
     // An additional network, but with some advanced options…
     // advanced: {
@@ -100,6 +122,7 @@ module.exports = {
 
   // Set default mocha options here, use special reporters, etc.
   mocha: {
+    reporter: 'eth-gas-reporter',
     // timeout: 100000
   },
 
@@ -138,4 +161,9 @@ module.exports = {
   //     }
   //   }
   // }
+  plugins: ['truffle-plugin-verify', 'truffle-contract-size'],
+  api_keys: {
+    etherscan: '5KG1R648C45F878IWS9VBB6YTCVMZC9I6E',
+    bscscan: 'V1IIN8HXAYVSDQU61QDX12MJU6WSWED8TI'
+  }
 };

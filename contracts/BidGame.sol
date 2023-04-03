@@ -9,17 +9,17 @@ import "./gameStorage.sol";
 import "./gameRegistry.sol";
 import "./dreamBidFee.sol";
 import "./Libraries/LibGame.sol";
-import "./Libraries/LibBidOnGame.sol";
+// import "./Libraries/LibBidOnGame.sol";
 
 contract BidGame is gameStorage, ReentrancyGuard {
     address public gameRegistryAddress;
     address public dreamBidFeeAddress;
     bool public _restrictionOnGame;
 
-    // constructor(address _gameRegistry, address _dreamBidFeeAddress) {
-    //     gameRegistryAddress = _gameRegistry;
-    //     dreamBidFeeAddress = _dreamBidFeeAddress;
-    // }
+    constructor(address _gameRegistry, address _dreamBidFeeAddress) {
+        gameRegistryAddress = _gameRegistry;
+        dreamBidFeeAddress = _dreamBidFeeAddress;
+    }
 
     event BidCreated(
         uint256 GameId,
