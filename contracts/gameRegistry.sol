@@ -88,7 +88,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     function setCompetitorsLimit(uint8 _competitorsLimit) public nonReentrant {
         require(
             msg.sender ==
-                dreamBidFee(dreamBidFeeAddress).getAconomyOwnerAddress(),
+                dreamBidFee(dreamBidFeeAddress).getProtocolOwnerAddress(),
             "You are not the Protocol Owner"
         );
         CompetitorsLimit = _competitorsLimit;
@@ -144,9 +144,9 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     {
         require(_bidderAddress != address(0), "0 address given");
         gameDetail storage game = gamesDetail[_gameId];
+        require(game.addBidders, "You can't add Bidder");
         require(game.gameOwner == msg.sender, "You are not owner");
         require(block.timestamp < game.bidStartTime, "Game has been started");
-        require(game.addBidders, "You can't add Bidder");
         _addBidder(_gameId, _bidderAddress);
         emit BidderAdded(_gameId, _bidderAddress);
     }
@@ -195,7 +195,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     function decideWinner(uint256 _gameId, uint8[] memory winners) external {
         require(
             msg.sender ==
-                dreamBidFee(dreamBidFeeAddress).getAconomyOwnerAddress(),
+                dreamBidFee(dreamBidFeeAddress).getProtocolOwnerAddress(),
             "You are not the Protocol Owner"
         );
         for (uint8 i = 0; i < winners.length; i++) {

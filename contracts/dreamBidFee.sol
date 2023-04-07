@@ -12,7 +12,7 @@ contract dreamBidFee is Ownable {
         return _dreamBiddingFee;
     }
 
-    function getAconomyOwnerAddress() public view virtual returns (address) {
+    function getProtocolOwnerAddress() public view virtual returns (address) {
         return owner();
     }
 

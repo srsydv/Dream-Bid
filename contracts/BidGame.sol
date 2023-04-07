@@ -31,7 +31,7 @@ contract BidGame is gameStorage, ReentrancyGuard {
     function restrictionOnGame(bool _restriction) external nonReentrant {
         require(
             msg.sender ==
-                dreamBidFee(dreamBidFeeAddress).getAconomyOwnerAddress(),
+                dreamBidFee(dreamBidFeeAddress).getProtocolOwnerAddress(),
             "You are not the Protocol Owner"
         );
         _restrictionOnGame = _restriction;
