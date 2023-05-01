@@ -1,8 +1,8 @@
 const dreamBidFee = artifacts.require("dreamBidFee")
-const BidGame = artifacts.require("BidGame")
+const bidGame = artifacts.require("BidGame")
 const gameRegistry = artifacts.require("gameRegistry")
 const LibGame = artifacts.require("LibGame")
-const SampleERC20 = artifacts.require("mintToken");
+const sampleERC20 = artifacts.require("mintToken");
 const LibCalculations = artifacts.require("LibCalculations")
 
 var BigNumber = require('big-number');
@@ -14,12 +14,22 @@ const { BN, constants, expectEvent, shouldFail, time, expectRevert } = require('
 
 contract("gameRegistry", async (accounts) => {
 
-    let ProtocolFee, protocolOwner, Protocol, res, ERC20, bidStartTime, gameId1, gameId2;
-    let Bidder = accounts[1];
-    // ERC20 = await SampleERC20.deployed();
+    let ProtocolFee, protocolOwner, Protocol, res, ERC20, bidStartTime, gameId1, gameId2,GameRegistry;
+
+    let Bidder1 = accounts[1];
+    let Bidder2 = accounts[2];
+    let Bidder3 = accounts[3];
+
     bidStartTime = BigNumber(moment.now());
     bidEndTime =  BigNumber(moment.now()).plus(200);
     console.log("times",bidStartTime.toString(), "Hi", bidEndTime.toString())
+
+    it("Should deploy contract", async() => {
+        GameRegistry = await gameRegistry.deployed();
+        BidGame = await bidGame.deployed();
+        ERC20 = await sampleERC20.deployed();
+        assert(GameRegistry * BidGame * ERC20 !== undefined || "" || null || NaN, "NFTLendingBorrowing contract was not deployed");
+    })
 
     it("should set ProtocolFee", async () => {
         Protocol = await dreamBidFee.deployed();
@@ -31,14 +41,13 @@ contract("gameRegistry", async (accounts) => {
     })
 
     it("should set competitor length", async() => {
-        GameRegistry = await gameRegistry.deployed();
+        // GameRegistry = await gameRegistry.deployed();
         res = await GameRegistry.setCompetitorsLimit(3);
     })
 
 
     it("should let Protocol Owner create the game", async () => {
-        ERC20 = await SampleERC20.deployed();
-        GameRegistry = await gameRegistry.deployed();
+        
         await ERC20.mint(accounts[0], '10000000000');
         assert.notEqual(GameRegistry.address, null||undefined, "Game Registry unable to deployed")
         res = await GameRegistry.listGame(
@@ -57,7 +66,7 @@ contract("gameRegistry", async (accounts) => {
         res = await GameRegistry.listGame(
             ERC20.address,
             100,
-            bidStartTime,
+            0,
             bidEndTime,
             false,
             3,
@@ -70,7 +79,7 @@ contract("gameRegistry", async (accounts) => {
             GameRegistry.listGame(
                 ERC20.address,
                 100,
-                bidStartTime,
+                0,
                 bidEndTime,
                 false,
                 4,
@@ -83,7 +92,7 @@ contract("gameRegistry", async (accounts) => {
             GameRegistry.listGame(
                 ERC20.address,
                 100,
-                bidStartTime,
+                0,
                 bidEndTime,
                 true,
                 3,
@@ -93,13 +102,41 @@ contract("gameRegistry", async (accounts) => {
         )
     })
 
+    it("let add Bidder for gameId one", async() => {
+        res = await GameRegistry.addBidders(1, Bidder1);
+        res = await GameRegistry.addBidders(1, Bidder2);
+        res = await GameRegistry.addBidders(1, Bidder3);
+    })
+
     it("let add Bidder for gameId two", async() => {
         await expectRevert(
-            GameRegistry.addBidders(1, Bidder),
+            GameRegistry.addBidders(2, Bidder1),
             "You can't add Bidder"
         )
-        // res = await GameRegistry.addBidders(1, Bidder);
     })
+
+    it("let game owner remove the Bidder3", async() => {
+        await GameRegistry.removeBidder(1,Bidder3)
+    })
+
+    it("let Bidders Bid on game1", async() => {
+        await ERC20.mint(Bidder1, '10000000000');
+        let balance = await ERC20.balanceOf(Bidder1);
+        console.log("Bidder1 Balance",balance.toString())
+        console.log("times",bidStartTime.toString(), "Hi", BigNumber(moment.now()).toString())
+        await ERC20.approve(BidGame.address, 5000, { from: Bidder1 })
+        await BidGame.Bid(2,0,5000, {from: Bidder1})
+    })
+
+    it("let Bidder3 Bid on game1", async() => {
+        await ERC20.mint(Bidder3, '10000000000');
+        await ERC20.approve(BidGame.address, 5000, { from: Bidder3 })
+        await expectRevert(
+            BidGame.Bid(2,0,5000, {from: Bidder1}),"You are not Added as Bidder"
+        )
+    })
+
+    
 
 
 
