@@ -146,7 +146,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         gameDetail storage game = gamesDetail[_gameId];
         require(game.addBidders, "You can't add Bidder");
         require(game.gameOwner == msg.sender, "You are not owner");
-        require(block.timestamp < game.bidStartTime, "Game has been started");
+        require(block.timestamp >= game.bidStartTime, "Game has not been started");
         _addBidder(_gameId, _bidderAddress);
         emit BidderAdded(_gameId, _bidderAddress);
     }
@@ -163,7 +163,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         require(_bidderAddress != address(0), "0 address given");
         gameDetail storage game = gamesDetail[_gameId];
         require(game.gameOwner == msg.sender, "You are not owner");
-        require(block.timestamp < game.bidStartTime, "Game has been started");
+        require(block.timestamp >= game.bidStartTime, "Game has not been started");
         require(game.addBidders, "You can't add Bidder");
         _removeBidder(_gameId, _bidderAddress);
         emit BidderRemoved(_gameId, _bidderAddress);

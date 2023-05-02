@@ -53,7 +53,7 @@ contract("gameRegistry", async (accounts) => {
         res = await GameRegistry.listGame(
             ERC20.address,
             100,
-            bidStartTime,
+            0,
             bidEndTime,
             true,
             3,
@@ -102,17 +102,20 @@ contract("gameRegistry", async (accounts) => {
         )
     })
 
-    it("let add Bidder for gameId one", async() => {
-        res = await GameRegistry.addBidders(1, Bidder1);
-        res = await GameRegistry.addBidders(1, Bidder2);
-        res = await GameRegistry.addBidders(1, Bidder3);
-    })
+    
 
     it("let add Bidder for gameId two", async() => {
         await expectRevert(
             GameRegistry.addBidders(2, Bidder1),
             "You can't add Bidder"
         )
+    })
+    console.log("times",bidStartTime.toString(), "Hi", bidEndTime.toString())
+
+    it("let add Bidder for gameId one", async() => {
+        res = await GameRegistry.addBidders(1, Bidder1);
+        res = await GameRegistry.addBidders(1, Bidder2);
+        res = await GameRegistry.addBidders(1, Bidder3);
     })
 
     it("let game owner remove the Bidder3", async() => {
@@ -124,18 +127,26 @@ contract("gameRegistry", async (accounts) => {
         let balance = await ERC20.balanceOf(Bidder1);
         console.log("Bidder1 Balance",balance.toString())
         console.log("times",bidStartTime.toString(), "Hi", BigNumber(moment.now()).toString())
-        await ERC20.approve(BidGame.address, 5000, { from: Bidder1 })
+        await ERC20.approve(BidGame.address, 10000, { from: Bidder1 })
+        let x = await ERC20.allowance(BidGame.address, Bidder1)
+        // console.log("hj111j",x.toString())
         await BidGame.Bid(2,0,5000, {from: Bidder1})
+        await BidGame.Bid(1,0,5000, {from: Bidder1})
     })
 
     it("let Bidder3 Bid on game1", async() => {
         await ERC20.mint(Bidder3, '10000000000');
-        await ERC20.approve(BidGame.address, 5000, { from: Bidder3 })
+        await ERC20.approve(BidGame.address, 6000, { from: Bidder3 })
+        let x = await ERC20.allowance(BidGame.address, Bidder3)
+        // console.log("hjj",x.toString())
         await expectRevert(
-            BidGame.Bid(2,0,5000, {from: Bidder1}),"You are not Added as Bidder"
+            BidGame.Bid(1,0,5000, {from: Bidder3}),
+            "You are not Added as Bidder"
         )
     })
 
+    
+    
     
 
 
