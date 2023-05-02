@@ -19,10 +19,10 @@ abstract contract gameStorage {
         address gameOwner;
         uint256 gameCreationTime;
         uint256 price;
-        bool fixPrice;
         bool addBidders;
         uint256 bidStartTime;
         uint256 bidEndTime;
+        bool winnerDecided;
         gameState state;
     }
     struct BidOrder {

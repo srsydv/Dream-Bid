@@ -194,6 +194,21 @@ contract("gameRegistry", async (accounts) => {
         )
     })
 
+
+    it("let gameOwner decide the winner", async() => {
+        await GameRegistry.decideWinner(1,[1])
+        await GameRegistry.decideWinner(2,[1,2])
+    })
+
+
+    it("let winner withdraw his amount", async() => {
+        const res = await BidGame.withdraw(1,1,false, {from: Bidder4});
+        let aa = res.logs[0].args.Amount.toNumber()
+        let aa1 = res.logs[0].args.GameId.toNumber()
+        console.log("hhh",aa)
+        console.log("hhh11",aa1)
+    })
+
     
     
     

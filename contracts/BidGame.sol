@@ -28,6 +28,11 @@ contract BidGame is gameStorage, ReentrancyGuard {
         uint256 Amount
     );
 
+    event wihdrawSuccess(
+        uint256 GameId,
+        uint256 Amount
+    );
+
     function restrictionOnGame(bool _restriction) external nonReentrant {
         require(
             msg.sender ==
@@ -114,7 +119,9 @@ contract BidGame is gameStorage, ReentrancyGuard {
     ) external nonReentrant {
         gameDetail memory detail = gameRegistry(gameRegistryAddress)
             .getGamedetail(_gameId);
-        require(block.timestamp > detail.bidEndTime, "Game not Finished Yet");
+        if(!detail.winnerDecided){
+            require(block.timestamp > detail.bidEndTime, "Game not Finished Yet");
+        }
         uint256 index = userBidIndex[msg.sender][_gameId];
         require(index > 0, "You have not Bid in this game");
         require(
@@ -124,8 +131,9 @@ contract BidGame is gameStorage, ReentrancyGuard {
         uint256 _losingCompetitorsAmount = losingCompetitorsAmount(_gameId);
         // uint256 payout = LibCalculations.
         if (toWollet) {
-            // userWollet[msg.sender][detail.currency] += _amount;
+        //     userWollet[msg.sender][detail.currency] += _amount;
         }
+        emit wihdrawSuccess(_gameId, _losingCompetitorsAmount);
     }
 
     function getGameBidAmount(uint256 _gameId, uint8 _competitorIndex)

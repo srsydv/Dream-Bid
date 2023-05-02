@@ -66,10 +66,10 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
             msg.sender,
             block.timestamp,
             _minPrice,
-            true,
             _addBidders,
             block.timestamp + _bidStartTime,
             block.timestamp + _bidEndTime,
+            false,
             gameState.STARTED
         );
         gamesDetail[gameId_] = gameData;
@@ -143,7 +143,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         nonReentrant
     {
         require(_bidderAddress != address(0), "0 address given");
-        gameDetail storage game = gamesDetail[_gameId];
+        gameDetail memory game = gamesDetail[_gameId];
         require(game.addBidders, "You can't add Bidder");
         require(game.gameOwner == msg.sender, "You are not owner");
         require(block.timestamp >= game.bidStartTime, "Game has not been started");
@@ -161,7 +161,7 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         nonReentrant
     {
         require(_bidderAddress != address(0), "0 address given");
-        gameDetail storage game = gamesDetail[_gameId];
+        gameDetail memory game = gamesDetail[_gameId];
         require(game.gameOwner == msg.sender, "You are not owner");
         require(block.timestamp >= game.bidStartTime, "Game has not been started");
         require(game.addBidders, "You can't add Bidder");
@@ -201,6 +201,8 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         for (uint8 i = 0; i < winners.length; i++) {
             Winners[_gameId].push(winners[i]);
         }
+        gameDetail storage game = gamesDetail[_gameId];
+        game.winnerDecided = true;
         emit DecidedWinners(_gameId, winners);
     }
 
