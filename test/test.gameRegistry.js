@@ -49,6 +49,8 @@ contract("gameRegistry", async (accounts) => {
     it("should set competitor length", async() => {
         // GameRegistry = await gameRegistry.deployed();
         res = await GameRegistry.setCompetitorsLimit(3);
+        const r = await GameRegistry.CompetitorsLimit();
+        console.log("fff",r.toString())
     })
 
 
@@ -146,31 +148,67 @@ contract("gameRegistry", async (accounts) => {
         console.log("Bidder1 Balance",balance.toString())
         console.log("times",bidStartTime.toString(), "Hi", BigNumber(moment.now()).toString())
         await ERC20.approve(BidGame.address, 10000, { from: Bidder1 })
-        await BidGame.Bid(1,0,5000, {from: Bidder1})
+        const res = await BidGame.Bid(1,0,5000, {from: Bidder1})
+
+        // let aa = res.logs[0].args.totalBid.toNumber()
+        // console.log("Bid1", aa)
 
         await ERC20.approve(BidGame.address, 50000, { from: Bidder2 })
-        await BidGame.Bid(1,0,50000, {from: Bidder2})
+        const res1 = await BidGame.Bid(1,0,50000, {from: Bidder2})
+
+        // let aa1 = res1.logs[0].args.totalBid.toNumber()
+        // console.log("Bid1", aa1)
 
         await ERC20.approve(BidGame.address, 150000, { from: Bidder3 })
-        await BidGame.Bid(1,0,15000, {from: Bidder3})
+        const res2 = await BidGame.Bid(1,0,15000, {from: Bidder3})
+
+        // let aa2 = res2.logs[0].args.totalBid.toNumber()
+        // console.log("Bid2", aa2)
 
         await ERC20.approve(BidGame.address, 55000, { from: Bidder4 })
-        await BidGame.Bid(1,1,55000, {from: Bidder4})
+        const res3 = await BidGame.Bid(1,1,55000, {from: Bidder4})
+
+        // let aa3 = res3.logs[0].args.totalBid.toNumber()
+        // console.log("Bid3", aa3)
 
         await ERC20.approve(BidGame.address, 25000, { from: Bidder5 })
-        await BidGame.Bid(1,1,25000, {from: Bidder5})
+        const res4 = await BidGame.Bid(1,1,25000, {from: Bidder5})
+
+        // let aa4 = res4.logs[0].args.totalBid.toNumber()
+        // console.log("Bid4", aa4)
 
         await ERC20.approve(BidGame.address, 45000, { from: Bidder6 })
-        await BidGame.Bid(1,1,45000, {from: Bidder6})
+        const res5 = await BidGame.Bid(1,1,45000, {from: Bidder6})
+
+        // let aa5 = res5.logs[0].args.totalBid.toNumber()
+        // console.log("Bid5", aa5)
 
         await ERC20.approve(BidGame.address, 65000, { from: Bidder7 })
-        await BidGame.Bid(1,2,65000, {from: Bidder7})
+        const res6 = await BidGame.Bid(1,2,65000, {from: Bidder7})
+
+        // let aa6 = res6.logs[0].args.totalBid.toNumber()
+        // console.log("Bid6", aa6)
 
         await ERC20.approve(BidGame.address, 45000, { from: Bidder8 })
-        await BidGame.Bid(1,2,45000, {from: Bidder8})
+        const res7 = await BidGame.Bid(1,2,45000, {from: Bidder8})
+
+        // let aa7 = res7.logs[0].args.totalBid.toNumber()
+        // console.log("Bid7", aa7)
 
         await ERC20.approve(BidGame.address, 35000, { from: Bidder9 })
-        await BidGame.Bid(1,2,35000, {from: Bidder9})
+        const res8 = await BidGame.Bid(1,2,35000, {from: Bidder9})
+
+        // let aa8 = res8.logs[0].args.totalBid.toNumber()
+        // console.log("Bid8", aa8)
+    })
+
+    it("let get total Bid Amount", async() => {
+        let a1 = await BidGame.getTotalBidAmount(1,0);
+        let a2 = await BidGame.getTotalBidAmount(1,1);
+        let a3 = await BidGame.getTotalBidAmount(1,2);
+        console.log("sss",a1.toString())
+        console.log("sss",a2.toString())
+        console.log("sss",a3.toString())
     })
 
 
@@ -198,7 +236,14 @@ contract("gameRegistry", async (accounts) => {
     it("let gameOwner decide the winner", async() => {
         await GameRegistry.decideWinner(1,[1])
         await GameRegistry.decideWinner(2,[1,2])
+        let d = await GameRegistry.getWinnersLength(1)
+        console.log("ghh",d.toString())
     })
+
+    // it("let get losingCompetitorsAmount", async() => {
+    //     let x = await BidGame.losingCompetitorsAmount(1,3,1)
+    //     console.log("xxx",x.toString())
+    // })
 
 
     it("let winner withdraw his amount", async() => {

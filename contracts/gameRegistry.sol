@@ -17,6 +17,10 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
     // 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB
 
     address public dreamBidFeeAddress;
+    uint8 public CompetitorsLimit;
+
+    // gameId => CompetitorIndex
+    mapping(uint256 => uint8[]) public Winners;
 
     constructor(address _dreamBidFeeAddress) {
         dreamBidFeeAddress = _dreamBidFeeAddress;
@@ -92,6 +96,10 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
             "You are not the Protocol Owner"
         );
         CompetitorsLimit = _competitorsLimit;
+    }
+
+    function getCompetitorsLimit() public view returns(uint8){
+        return CompetitorsLimit;
     }
 
     function getGamedetail(uint256 _gameId)
@@ -212,5 +220,14 @@ contract gameRegistry is gameStorage, ReentrancyGuard {
         returns (uint8[] memory)
     {
         return Winners[_gameId];
+    }
+
+
+    function getWinnersLength(uint256 _gameId)
+        external
+        view
+        returns (uint256)
+    {
+        return Winners[_gameId].length;
     }
 }

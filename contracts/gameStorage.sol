@@ -5,7 +5,6 @@ import "./Libraries/LibGame.sol";
 
 abstract contract gameStorage {
     uint256 public gameId;
-    uint8 public CompetitorsLimit;
 
     enum gameState {
         SCEDULED,
@@ -47,10 +46,7 @@ abstract contract gameStorage {
     mapping(uint256 => mapping(address => uint256)) public bidderAddressIndex;
     // gameId => LibGame.Competitor[]
     mapping(uint256 => LibGame.Competitor[]) public Competitors;
-    // gameId => CompetitorIndex
-    mapping(uint256 => uint8[]) public Winners;
-    // gameId => CompetitorIndex => totalBidAmount
-    mapping(uint256 => mapping(uint8 => uint256)) public totalBidAmount;
+    
     // wolletAddress => Currency => Amount
     mapping(address => mapping(address => uint256)) private userWollet;
 }

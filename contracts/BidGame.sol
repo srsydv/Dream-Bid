@@ -16,6 +16,9 @@ contract BidGame is gameStorage, ReentrancyGuard {
     address public dreamBidFeeAddress;
     bool public _restrictionOnGame;
 
+    // gameId => CompetitorIndex => totalBidAmount
+    mapping(uint256 => mapping(uint8 => uint256)) public totalBidAmount;
+
     constructor(address _gameRegistry, address _dreamBidFeeAddress) {
         gameRegistryAddress = _gameRegistry;
         dreamBidFeeAddress = _dreamBidFeeAddress;
@@ -25,7 +28,8 @@ contract BidGame is gameStorage, ReentrancyGuard {
         uint256 GameId,
         uint8 CompetitorIndex,
         address Currency,
-        uint256 Amount
+        uint256 Amount,
+        uint256 totalBid
     );
 
     event wihdrawSuccess(
@@ -92,24 +96,28 @@ contract BidGame is gameStorage, ReentrancyGuard {
             );
         }
 
-        emit BidCreated(_gameId, _competitorIndex, detail.currency, _amount);
+        emit BidCreated(_gameId, _competitorIndex, detail.currency, _amount, totalBidAmount[_gameId][_competitorIndex]);
     }
 
-    function losingCompetitorsAmount(uint256 _gameId)
+    function losingCompetitorsAmount(uint256 _gameId, uint8 _competitorsLimit, uint256 _winnersLength, uint8[] memory _winners)
         public
         view
         returns (uint256)
     {
         uint256 amount;
         // gameRegistry(gameRegistryAddress).getWinners(_gameId);
-        for (uint8 i = 0; i < CompetitorsLimit; i++) {
-            for (uint8 j = 0; j < Winners[_gameId].length; j++) {
-                if (i != Winners[_gameId][j]) {
+        for (uint8 i = 0; i < _competitorsLimit; i++) {
+            for (uint8 j = 0; j < _winnersLength; j++) {
+                if (i != _winners[j]) {
                     amount += totalBidAmount[_gameId][i];
                 }
             }
         }
         return amount;
+    }
+
+    function getTotalBidAmount(uint256 _gameId, uint8 _index) public view returns(uint256){
+        return totalBidAmount[_gameId][_index];
     }
 
     function withdraw(
@@ -128,7 +136,14 @@ contract BidGame is gameStorage, ReentrancyGuard {
             !Bids[_gameId][_competitorIndex][index - 1].withdrawn,
             "You have already withdrawn"
         );
-        uint256 _losingCompetitorsAmount = losingCompetitorsAmount(_gameId);
+        
+        uint8 CompetitorsLimit = gameRegistry(gameRegistryAddress)
+            .getCompetitorsLimit();
+        uint256 WinnersLength = gameRegistry(gameRegistryAddress)
+            .getWinnersLength(_gameId);
+        uint8[] memory winners = gameRegistry(gameRegistryAddress)
+            .getWinners(_gameId);
+        uint256 _losingCompetitorsAmount = losingCompetitorsAmount(_gameId, CompetitorsLimit, WinnersLength, winners);
         // uint256 payout = LibCalculations.
         if (toWollet) {
         //     userWollet[msg.sender][detail.currency] += _amount;
