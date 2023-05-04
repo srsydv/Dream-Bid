@@ -9,7 +9,7 @@ import "./gameStorage.sol";
 import "./gameRegistry.sol";
 import "./dreamBidFee.sol";
 import "./Libraries/LibGame.sol";
-// import "./Libraries/LibBidOnGame.sol";
+import "./Libraries/LibCalculations.sol";
 
 contract BidGame is gameStorage, ReentrancyGuard {
     address public gameRegistryAddress;
@@ -18,6 +18,22 @@ contract BidGame is gameStorage, ReentrancyGuard {
 
     // gameId => CompetitorIndex => totalBidAmount
     mapping(uint256 => mapping(uint8 => uint256)) public totalBidAmount;
+
+    // gameId => competitorIndex => BidOrder[]
+    mapping(uint256 => mapping(uint8 => BidOrder[])) public Bids;
+    /*
+        BidIndex will always be plus one to actual Bid Index
+        because if user will again bid then his Bids[_gameId][_competitorIndex][bidIndex - 1].BidAmount will only change
+    */
+    // userAddress => gameId => BidIndex
+    mapping(address => mapping(uint256 => uint256)) public userBidIndex;
+
+    struct BidOrder {
+        address currency;
+        address userAddress;
+        uint256 BidAmount;
+        bool withdrawn;
+    }
 
     constructor(address _gameRegistry, address _dreamBidFeeAddress) {
         gameRegistryAddress = _gameRegistry;
@@ -116,14 +132,15 @@ contract BidGame is gameStorage, ReentrancyGuard {
         return amount;
     }
 
-    function getTotalBidAmount(uint256 _gameId, uint8 _index) public view returns(uint256){
-        return totalBidAmount[_gameId][_index];
+    function getTotalBidAmount(uint256 _gameId, uint8 _competitorIndex) public view returns(uint256){
+        return totalBidAmount[_gameId][_competitorIndex];
     }
 
     function withdraw(
         uint256 _gameId,
         uint8 _competitorIndex,
-        bool toWollet
+        address _ERC20Address,
+        address _receiver
     ) external nonReentrant {
         gameDetail memory detail = gameRegistry(gameRegistryAddress)
             .getGamedetail(_gameId);
@@ -136,7 +153,7 @@ contract BidGame is gameStorage, ReentrancyGuard {
             !Bids[_gameId][_competitorIndex][index - 1].withdrawn,
             "You have already withdrawn"
         );
-        
+        Bids[_gameId][_competitorIndex][index - 1].withdrawn = true;
         uint8 CompetitorsLimit = gameRegistry(gameRegistryAddress)
             .getCompetitorsLimit();
         uint256 WinnersLength = gameRegistry(gameRegistryAddress)
@@ -144,11 +161,16 @@ contract BidGame is gameStorage, ReentrancyGuard {
         uint8[] memory winners = gameRegistry(gameRegistryAddress)
             .getWinners(_gameId);
         uint256 _losingCompetitorsAmount = losingCompetitorsAmount(_gameId, CompetitorsLimit, WinnersLength, winners);
-        // uint256 payout = LibCalculations.
-        if (toWollet) {
-        //     userWollet[msg.sender][detail.currency] += _amount;
-        }
-        emit wihdrawSuccess(_gameId, _losingCompetitorsAmount);
+        uint256 bidIndex = userBidIndex[msg.sender][_gameId];
+        uint256 userAmount = Bids[_gameId][_competitorIndex][bidIndex - 1].BidAmount;
+        uint256 winningAmount = totalBidAmount[_gameId][_competitorIndex];
+        uint256 payout = LibCalculations.calculateAmount(_losingCompetitorsAmount, winningAmount, userAmount);
+        // transfering Amount to Winner
+        require(
+            IERC20(_ERC20Address).transfer(_receiver, payout),
+            "unable to transfer to receiver"
+        );
+        emit wihdrawSuccess(_gameId, payout);
     }
 
     function getGameBidAmount(uint256 _gameId, uint8 _competitorIndex)

@@ -24,20 +24,7 @@ abstract contract gameStorage {
         bool winnerDecided;
         gameState state;
     }
-    struct BidOrder {
-        address currency;
-        address userAddress;
-        uint256 BidAmount;
-        bool withdrawn;
-    }
-    // gameId => competitorIndex => BidOrder[]
-    mapping(uint256 => mapping(uint8 => BidOrder[])) public Bids;
-    /*
-        BidIndex will always be plus one to actual Bid Index
-        because if user will again bid then his Bids[_gameId][_competitorIndex][bidIndex - 1].BidAmount will only change
-    */
-    // userAddress => gameId => BidIndex
-    mapping(address => mapping(uint256 => uint256)) public userBidIndex;
+    
     // gameId => gameDetail
     mapping(uint256 => gameDetail) public gamesDetail;
     // gameId => Bidders Address
