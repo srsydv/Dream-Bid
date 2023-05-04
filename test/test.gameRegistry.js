@@ -247,11 +247,9 @@ contract("gameRegistry", async (accounts) => {
 
 
     it("let winner withdraw his amount", async() => {
-        const res = await BidGame.withdraw(1,1,false, {from: Bidder4});
+        const res = await BidGame.withdraw(1,1,ERC20.address,Bidder4, {from: Bidder4});
         let aa = res.logs[0].args.Amount.toNumber()
-        let aa1 = res.logs[0].args.GameId.toNumber()
         console.log("hhh",aa)
-        console.log("hhh11",aa1)
     })
 
     

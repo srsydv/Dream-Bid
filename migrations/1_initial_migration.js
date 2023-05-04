@@ -13,6 +13,9 @@ module.exports = async function(deployer) {
     await deployer.deploy(LibGame);
     deployer.link(LibGame, [gameRegistry]);
 
+    await deployer.deploy(LibCalculations);
+    deployer.link(LibCalculations, [BidGame]);
+
     await deployer.deploy(gameRegistry, protocolFee.address);
     var GameRegistry = await gameRegistry.deployed();
 
