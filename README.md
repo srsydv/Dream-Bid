@@ -14,3 +14,5 @@ suppose IND and PAK
 1.1.4.1---Important:::suppose IND loses the match the fund will bd diducted by that percantage (ex: x supplied 100 usdc with 10% interest rate after loosing the match 10usdc will be diducted and he can
 	 withdraw his 90usdc or keep it into contract for next BID game)
 1.1.4.2---If IND wins the game then x will gate the amount of total percentage
+
+https://vercel.com/shrishyadav108-gmailcom/bid-ui
